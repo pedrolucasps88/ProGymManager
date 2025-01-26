@@ -9,6 +9,11 @@ Alunos.Add(alunos1.nome, alunos1);
 
 
 
+
+
+
+
+
 void menu()
 {
     Console.Clear();
@@ -24,10 +29,15 @@ void menu()
     ");
     Console.WriteLine("Escolha uma Opção:");
 
+    Console.WriteLine("-----------------------");
     Console.WriteLine("1 - Cadastrar Alunos");
     Console.WriteLine("2 - Ver Alunos");
-    Console.WriteLine("3 - Criar treino para alunos");
-    Console.WriteLine("4 - Aluno ver treino");
+    Console.WriteLine("-----------------------");
+    Console.WriteLine("3 - Ver Exercicios no Banco de dados");
+    Console.WriteLine("4 - Criar treino para alunos");
+    Console.WriteLine("-----------------------");
+    Console.WriteLine("5 - Aluno ver treino");
+
     Console.WriteLine("5 - Sair");
 
     int opcao= int.Parse(Console.ReadLine()!);
@@ -40,8 +50,7 @@ void menu()
             VerAlunos();
             break;
         case 3:
-            Console.WriteLine("TchauTchau");
-            Console.ReadLine();
+            VerExerciciosPorMusculo();
             break;
         default:
             Console.WriteLine("TchauTchau");
@@ -86,6 +95,62 @@ void VerAlunos()
     menu();
 }
 
+void CriarTreino()
+{
+    Console.Clear();
+    Console.WriteLine("Digite o nome do aluno:");
+    string nome = Console.ReadLine();
+    if (Alunos.ContainsKey(nome))
+    {
+        Console.WriteLine("Digite o treino do aluno:");
+        string treino = Console.ReadLine();
+        //Alunos[nome].treino = treino;
+        Console.WriteLine("Treino cadastrado com sucesso!");
+    }
+    else
+    {
+        Console.WriteLine("Aluno não encontrado!");
+    }
+    Console.ReadLine();
+    menu();
+}
 
+void VerExerciciosPorMusculo()
+{
+    Console.Clear();
+    var enderecoDoArquivo = "exercises.txt";
+    using (var fluxoDoArquivo = new FileStream(enderecoDoArquivo, FileMode.Open))
+    {
+        var leitor = new StreamReader(fluxoDoArquivo);
+        // var linha = leitor.ReadLine();
+        // var texto = leitor.ReadToEnd();
+        // var numero = leitor.Read();
+        List<Exercicios> exercicios = new List<Exercicios>();
+        while (!leitor.EndOfStream)
+        {
+            var linha = leitor.ReadLine();
+            var dados = linha.Split(',');
+            
+            if (dados.Length == 2)
+            {
+                var nomeExercicio = dados[0].Trim();
+                var musculo = dados[1].Trim();
+                exercicios.Add(new Exercicios(nomeExercicio, musculo));
+            }
+        }
+
+        Console.WriteLine("Escreva o Musculo que você quer ver os exercicios:");
+        string musculoProcurado = Console.ReadLine()!;
+
+        var ExerciciosPorMusculo = exercicios.Where(ex=>ex.Musculo.ToUpper().Contains(musculoProcurado.ToUpper())).ToList();
+        foreach(var item in ExerciciosPorMusculo)
+        {
+            Console.WriteLine("------------------------");
+            Console.WriteLine($"Exercicio: {item.Nome}");
+            Console.WriteLine("------------------------");
+        }
+        Console.ReadLine();
+    }
+}
 
 menu();

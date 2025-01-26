@@ -10,6 +10,8 @@ internal class Alunos
     public int plano { get; set; }
     public bool ativo { get; set; }
 
+    public List<Treino> Treinos { get; set; } = new List<Treino>();
+
     public Alunos(string nome, string cpf)
     {
         this.nome = nome;
