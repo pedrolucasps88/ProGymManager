@@ -8,10 +8,11 @@ Alunos.Add(alunos.nome, alunos);
 Alunos.Add(alunos1.nome, alunos1);
 
 
-
-
-
-
+Dictionary<string, Personais> Personais = new();
+Personais personal = new Personais("Pedro", "12345678902");
+Personais personal1 = new Personais("Ana", "12345678903");
+Personais.Add(personal.nome, personal);
+Personais.Add(personal1.nome, personal1);
 
 
 void menu()
@@ -28,17 +29,23 @@ void menu()
 ╚═╝░░░░░╚═╝░░╚═╝░╚════╝░░╚═════╝░░░░╚═╝░░░╚═╝░░░░░╚═╝╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝░░╚═╝░╚═════╝░╚══════╝╚═╝░░╚═╝
     ");
     Console.WriteLine("Escolha uma Opção:");
-
     Console.WriteLine("-----------------------");
+    Console.WriteLine("*FUNCIONARIO*");
     Console.WriteLine("1 - Cadastrar Alunos");
-    Console.WriteLine("2 - Ver Alunos");
+    Console.WriteLine("2 - Cadastrar Personal");
+    Console.WriteLine("3 - Ver Alunos");
+    Console.WriteLine("4 - Ver Personais");
     Console.WriteLine("-----------------------");
-    Console.WriteLine("3 - Ver Exercicios no Banco de dados");
-    Console.WriteLine("4 - Criar treino para alunos");
+    Console.WriteLine("*PERSONAL*");
+    Console.WriteLine("5 - Ver Exercicios no Banco de dados");
+    Console.WriteLine("6 - Criar treino para alunos");
     Console.WriteLine("-----------------------");
-    Console.WriteLine("5 - Aluno ver treino");
-
-    Console.WriteLine("5 - Sair");
+    Console.WriteLine("*ALUNO*");
+    Console.WriteLine("7 - Aluno ver treino");
+    Console.WriteLine("8 - Contratar Personal");
+    Console.WriteLine("9 - Marcar treino com Personal");
+    Console.WriteLine("-----------------------");
+    Console.WriteLine("10 - Sair");
 
     int opcao= int.Parse(Console.ReadLine()!);
     switch (opcao)
@@ -47,13 +54,34 @@ void menu()
             CadastrarAlunos();
             break;
         case 2:
-            VerAlunos();
+            CadastrarPersonal();
             break;
         case 3:
+            VerAlunos();
+            break;
+        case 4:
+            VerPersonais();
+            break;
+        case 5:
             VerExerciciosPorMusculo();
             break;
-        default:
+        case 6:
+            CriarTreino();
+            break;
+        case 7:
+            VerTreinosPorAluno();
+            break;
+        case 8:
+            break;
+        case 9:
+            break;
+        case 10:
             Console.WriteLine("TchauTchau");
+            Console.ReadLine();
+            break;
+
+        default:
+            Console.WriteLine("Opção invalida - TchauTchau");
             Console.ReadLine();
             break;
     }
@@ -61,26 +89,34 @@ void menu()
 }
 
 
-
-
-
-
-
-
-
 void CadastrarAlunos()
 {
     Console.Clear();
     Console.WriteLine("Cadastro de Alunos");
     Console.WriteLine("Digite o nome do aluno:");
-    string nome = Console.ReadLine();
+    string nome = Console.ReadLine()!;
     Console.WriteLine("Digite o CPF do aluno:");
-    string cpf = Console.ReadLine();
+    string cpf = Console.ReadLine()!;
     Alunos aluno = new Alunos(nome, cpf);
     Alunos.Add(aluno.nome, aluno);   
     Console.WriteLine($"O aluno {aluno.nome} foi Cadastrado com sucesso!");
     menu();
 }
+
+void CadastrarPersonal()
+{
+    Console.Clear();
+    Console.WriteLine("Cadastro de Personal");
+    Console.WriteLine("Digite o nome do Personal:");
+    string nome = Console.ReadLine()!;
+    Console.WriteLine("Digite o CPF do Personal:");
+    string cpf = Console.ReadLine()!;
+    Personais personal = new Personais(nome, cpf);
+    Personais.Add(personal.nome, personal);
+    Console.WriteLine($"O Personal {personal.nome} foi Cadastrado com sucesso!");
+    menu();
+}
+
 
 void VerAlunos()
 {
@@ -95,16 +131,47 @@ void VerAlunos()
     menu();
 }
 
+void VerPersonais()
+{
+    Console.Clear();
+    Console.WriteLine("Personais:");
+    foreach (var personal in Personais)
+    {
+        personal.Value.MostrarFicha();
+    }
+    Console.ReadLine();
+    menu();
+}
 void CriarTreino()
 {
     Console.Clear();
     Console.WriteLine("Digite o nome do aluno:");
-    string nome = Console.ReadLine();
+    string nome = Console.ReadLine()!;
+    int sairT = 0;
+
     if (Alunos.ContainsKey(nome))
     {
-        Console.WriteLine("Digite o treino do aluno:");
-        string treino = Console.ReadLine();
-        //Alunos[nome].treino = treino;
+        Console.WriteLine("Digite o Nome do treino do aluno:");
+        string nomeTreino = Console.ReadLine()!;
+        List<Exercicios> treino = new List<Exercicios>();
+        while (sairT==0)
+        {
+            Console.WriteLine("Digite o Exercicio do treino do aluno:");
+            string exercicio=Console.ReadLine()!;
+            Console.WriteLine("Digite o Musculo do exercicio:");
+            string musculo = Console.ReadLine()!;
+            Exercicios ex = new Exercicios(exercicio, musculo);
+            treino.Add(ex);
+            Console.WriteLine("Deseja adicionar mais exercicios? 1-Sim 2-Não");
+            int sair = int.Parse(Console.ReadLine()!);
+            if (sair == 2)
+            {
+                sairT = 1;
+            }
+        }
+        Alunos aluno = Alunos[nome];    
+        Treino treinoAluno = new Treino(nomeTreino,treino,aluno);
+        aluno.Treinos.Add(treinoAluno);
         Console.WriteLine("Treino cadastrado com sucesso!");
     }
     else
@@ -114,6 +181,36 @@ void CriarTreino()
     Console.ReadLine();
     menu();
 }
+
+void VerTreinosPorAluno()
+{
+    Console.Clear();
+    Console.WriteLine("Digite o nome do aluno:");
+    string nome = Console.ReadLine()!;
+    if (Alunos.ContainsKey(nome))
+    {
+        Alunos aluno = Alunos[nome];
+        foreach (var treino in aluno.Treinos)
+        {
+            Console.WriteLine($"Treino: {treino.Nome}");
+            Console.WriteLine("\n");
+            foreach (var exercicio in treino.Exercicios)
+            {
+                Console.WriteLine("---------------------------------------");
+                Console.WriteLine($"Exercicio: {exercicio.Nome} -- {exercicio.Musculo}");
+                Console.WriteLine("---------------------------------------");
+            }
+        }   
+    }
+    else
+    {
+        Console.WriteLine("Aluno não encontrado!");
+    }
+    Console.ReadLine();
+    menu();
+}
+
+
 
 void VerExerciciosPorMusculo()
 {
@@ -151,6 +248,7 @@ void VerExerciciosPorMusculo()
         }
         Console.ReadLine();
     }
+    menu();
 }
 
 menu();

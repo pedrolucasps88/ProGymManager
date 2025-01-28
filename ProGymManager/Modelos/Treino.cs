@@ -13,11 +13,12 @@ namespace ProGymManager.Modelos
         public Alunos Aluno { get; set; } // Referência ao Aluno dono do treino
         public List<Exercicios> Exercicios { get; set; } = new List<Exercicios>();
 
-        public Treino(string nome, List<Exercicios> exercicios)
+        public Treino(string nome, List<Exercicios> exercicios,Alunos aluno)
         {
             Id = new Random().Next(1, 1000);
             this.Nome = nome;
             this.Exercicios = exercicios;
+            this.Aluno=aluno;
         }
     }
 }
