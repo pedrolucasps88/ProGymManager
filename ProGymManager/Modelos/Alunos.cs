@@ -12,6 +12,8 @@ internal class Alunos
 
     public List<Treino> Treinos { get; set; } = new List<Treino>();
 
+    public Personais Personal { get; set; }
+
     public Alunos(string nome, string cpf)
     {
         this.nome = nome;
@@ -28,6 +30,7 @@ internal class Alunos
         Console.WriteLine($"Matricula:{numeroMatricula}");
         Console.WriteLine(plano == 1 ? "Plano: Mensal" : "Plano: Anual");
         Console.WriteLine(ativo ? "Aluno Ativo" : "Aluno Inativo");
+        Console.WriteLine(Personal is null ?"Não tem personal ainda" : $"Personal:{Personal.nome}" );
         Console.WriteLine("------------------------------------");
     }
 }

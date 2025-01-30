@@ -1,6 +1,7 @@
 ﻿
 using ProGymManager.Modelos;
 using System.ComponentModel.Design;
+string solicitacao;
 Dictionary<string, Alunos> Alunos = new();
 Alunos alunos = new Alunos("João", "12345678900") { ativo = false};
 Alunos alunos1 = new Alunos("Maria", "12345678901") { plano = 2 };
@@ -46,7 +47,9 @@ void menu()
     Console.WriteLine("9 - Marcar treino com Personal");
     Console.WriteLine("-----------------------");
     Console.WriteLine("10 - Sair");
+    Console.WriteLine("-----------------------");
 
+    Console.Write("Sua Opção: ");
     int opcao= int.Parse(Console.ReadLine()!);
     switch (opcao)
     {
@@ -72,6 +75,7 @@ void menu()
             VerTreinosPorAluno();
             break;
         case 8:
+            ContratarPersonal();
             break;
         case 9:
             break;
@@ -251,4 +255,107 @@ void VerExerciciosPorMusculo()
     menu();
 }
 
-menu();
+
+void ContratarPersonal()
+{
+    Console.Clear();
+    Console.WriteLine("Digite o nome do aluno:");
+    string nome = Console.ReadLine()!;
+    if (Alunos.ContainsKey(nome))
+    {
+        Alunos aluno = Alunos[nome];
+        List<Personais> personaisDisponiveis = new List<Personais>();
+
+        Console.WriteLine("Personais Disponiveis:");
+        foreach (var personal in Personais)
+        {
+            if (personal.Value.disponivel) personaisDisponiveis.Add(personal.Value);
+        }
+        foreach (var personais in personaisDisponiveis)
+        {
+            personais.MostrarFicha();
+        }
+        Console.WriteLine("Digite o nome do Personal que quer contratar:");
+        string nomePersonal = Console.ReadLine()!;
+        if (Personais.ContainsKey(nomePersonal))
+        {
+
+            Personais personal = Personais[nomePersonal];
+            aluno.Personal = personal;
+            personal.Alunos.Add(aluno);
+            Console.WriteLine("Personal contratado com sucesso!");
+        }
+        else
+        {
+            Console.WriteLine("Personal não encontrado!");
+        }
+    }
+    else
+    {
+        Console.WriteLine("Aluno não encontrado!");
+    }
+
+    Console.ReadLine();
+
+    menu();
+}    
+
+
+void MarcarTreinoComPersonal()
+{
+    Console.Clear();
+    Console.WriteLine("Digite o nome do aluno:");
+    string nome = Console.ReadLine()!;
+    if (Alunos.ContainsKey(nome))
+    {
+        Alunos aluno = Alunos[nome];
+        if (aluno.Personal is null)
+        {
+            Console.WriteLine("Aluno não tem personal ainda!");
+        }
+        else
+        {
+            Personais personal = aluno.Personal;
+            Console.Write("Digite o dia que quer treinar : ");
+            string dia = Console.ReadLine()!;
+            Console.Write("Digite o horario que quer treinar : ");
+            string horario = Console.ReadLine()!;
+            Console.WriteLine("Qual treino quer fazer: ");
+            string nomeTreino = Console.ReadLine()!;
+            //Console.Write("Digite o dia e horário que quer treinar (formato: yyyy-MM-dd HH:mm): ");
+            //string dataHoraInput = Console.ReadLine()!;
+            if (aluno.Treinos.Any(t => t.Nome.Equals(nomeTreino)))
+            {
+                Console.WriteLine("Treino Encontrado");
+               //Solicitacao solicitacao1 = new Solicitacao(personal,aluno,);
+
+            }
+            else
+            {
+                nomeTreino = "Treino Personalizado";
+                Console.WriteLine("Treino não encontrado");
+            }
+            Console.WriteLine($"Solicitação de Treino de {nomeTreino} marcado com {personal.nome} no dia {dia} as {horario}");
+            solicitacao= $"Solicitação de Treino de {nomeTreino} marcado com {personal.nome} no dia {dia} as {horario}";
+            Console.ReadLine();
+
+            menu();
+        }
+    }
+}
+
+void SolicitaçõesDeTreino()
+{
+    Console.Clear();
+    Console.WriteLine("Solicitações de Treino:");
+    foreach (var aluno in Alunos)
+    {
+        if (aluno.Value.Personal is not null)
+        {
+            Console.WriteLine($"Aluno: {aluno.Value.nome} - Personal: {aluno.Value.Personal.nome}");
+        }
+    }
+    Console.ReadLine();
+    menu();
+}
+    menu();

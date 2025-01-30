@@ -8,7 +8,8 @@ internal class Personais
     public string cpf { get; set; }
     private string? numeroMatricula { get; set; }
     public bool disponivel => Alunos is null || Alunos.Count != 8;
-    List<Alunos>? Alunos { get; set; }
+    public List<Alunos>? Alunos { get; set; }= new List<Alunos>();
+
 
     public Personais(string nome, string cpf)
     {
@@ -24,7 +25,7 @@ internal class Personais
         Console.WriteLine($"Matricula:{numeroMatricula}");
         Console.WriteLine(disponivel == true ? "Tem vagas" : "Cheio de Alunos");
         int num = 1;
-        if (Alunos is not null)
+        if (Alunos.Count!=0)
         {
             Console.WriteLine($"Alunos de {nome}:");
             foreach (var aluno in Alunos)
