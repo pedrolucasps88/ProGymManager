@@ -8,8 +8,8 @@ namespace ProGymManager.Modelos;
 
 internal class Solicitacao
 {
-    Personais personal { get; set; }
-    Alunos aluno { get; set; }
+    public Personais personal { get; set; }
+    public Alunos aluno { get; set; }
 
     public DateTime DataHora { get; set; }
 

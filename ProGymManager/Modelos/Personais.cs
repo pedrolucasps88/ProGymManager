@@ -10,6 +10,7 @@ internal class Personais
     public bool disponivel => Alunos is null || Alunos.Count != 8;
     public List<Alunos>? Alunos { get; set; }= new List<Alunos>();
 
+    public List<Solicitacao> solicitacaos { get; set; } = new List<Solicitacao>();
 
     public Personais(string nome, string cpf)
     {

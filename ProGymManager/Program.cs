@@ -1,6 +1,7 @@
 ﻿
 using ProGymManager.Modelos;
 using System.ComponentModel.Design;
+using System.Linq;
 string solicitacao;
 Dictionary<string, Alunos> Alunos = new();
 Alunos alunos = new Alunos("João", "12345678900") { ativo = false};
@@ -40,13 +41,15 @@ void menu()
     Console.WriteLine("*PERSONAL*");
     Console.WriteLine("5 - Ver Exercicios no Banco de dados");
     Console.WriteLine("6 - Criar treino para alunos");
+    Console.WriteLine("7 - Ver/Aceitar solicitações");
     Console.WriteLine("-----------------------");
     Console.WriteLine("*ALUNO*");
-    Console.WriteLine("7 - Aluno ver treino");
-    Console.WriteLine("8 - Contratar Personal");
-    Console.WriteLine("9 - Marcar treino com Personal");
+    Console.WriteLine("8 - Aluno ver treino");
+    Console.WriteLine("9 - Contratar Personal");
+    Console.WriteLine("10 - Marcar treino com Personal");
+    Console.WriteLine("11 - Ver solicitações");
     Console.WriteLine("-----------------------");
-    Console.WriteLine("10 - Sair");
+    Console.WriteLine("12 - Sair");
     Console.WriteLine("-----------------------");
 
     Console.Write("Sua Opção: ");
@@ -72,14 +75,21 @@ void menu()
             CriarTreino();
             break;
         case 7:
-            VerTreinosPorAluno();
+            Ver_AceitarSolicitacao();
             break;
         case 8:
-            ContratarPersonal();
+            VerTreinosPorAluno();
             break;
         case 9:
+            ContratarPersonal();
             break;
         case 10:
+            MarcarTreinoComPersonal();
+            break;
+        case 11:
+            AlunoVerSolicitaçõesDeTreino();
+            break;
+        case 12:
             Console.WriteLine("TchauTchau");
             Console.ReadLine();
             break;
@@ -322,21 +332,29 @@ void MarcarTreinoComPersonal()
             string horario = Console.ReadLine()!;
             Console.WriteLine("Qual treino quer fazer: ");
             string nomeTreino = Console.ReadLine()!;
-            //Console.Write("Digite o dia e horário que quer treinar (formato: yyyy-MM-dd HH:mm): ");
-            //string dataHoraInput = Console.ReadLine()!;
+            Console.Write("Digite o dia e horário que quer treinar (formato: yyyy-MM-dd HH:mm): ");
+            string dataHoraInput = Console.ReadLine()!;
+            if (!DateTime.TryParse(dataHoraInput, out DateTime dataHora))
+            {
+                Console.WriteLine("Data e hora inválida");
+                Console.ReadLine();
+                MarcarTreinoComPersonal();
+            }
             if (aluno.Treinos.Any(t => t.Nome.Equals(nomeTreino)))
             {
+                Treino treino = aluno.Treinos.First(t => t.Nome.Equals(nomeTreino));
                 Console.WriteLine("Treino Encontrado");
-               //Solicitacao solicitacao1 = new Solicitacao(personal,aluno,);
-
+                Solicitacao solicitacao1 = new Solicitacao(personal,aluno, dataHora,treino);
+                aluno.Solicitacao.Add(solicitacao1);
+                personal.solicitacaos.Add(solicitacao1);
             }
             else
             {
-                nomeTreino = "Treino Personalizado";
-                Console.WriteLine("Treino não encontrado");
+                Console.WriteLine("Treino não encontrado,tente novamente!");
+                MarcarTreinoComPersonal();
+
             }
-            Console.WriteLine($"Solicitação de Treino de {nomeTreino} marcado com {personal.nome} no dia {dia} as {horario}");
-            solicitacao= $"Solicitação de Treino de {nomeTreino} marcado com {personal.nome} no dia {dia} as {horario}";
+            Console.WriteLine($"Solicitação de Treino de {nomeTreino} marcado com {personal.nome} no dia {dataHora}");
             Console.ReadLine();
 
             menu();
@@ -344,16 +362,85 @@ void MarcarTreinoComPersonal()
     }
 }
 
-void SolicitaçõesDeTreino()
+void AlunoVerSolicitaçõesDeTreino()
 {
     Console.Clear();
-    Console.WriteLine("Solicitações de Treino:");
-    foreach (var aluno in Alunos)
+    Console.WriteLine("Digite o nome do Aluno:");
+    string nome = Console.ReadLine()!;
+    if (Alunos.ContainsKey(nome))
     {
-        if (aluno.Value.Personal is not null)
+        Alunos aluno = Alunos[nome];
+        if (aluno.Solicitacao is null)
         {
-            Console.WriteLine($"Aluno: {aluno.Value.nome} - Personal: {aluno.Value.Personal.nome}");
+            Console.WriteLine("Não há solicitações");
         }
+        else {
+            Console.WriteLine("Solicitações de Treino:");
+            foreach (var solicitacao in aluno.Solicitacao)
+            {
+                Console.WriteLine($"Personal: {solicitacao.personal.nome} - Data: {solicitacao.DataHora} - Status: {solicitacao.Status}");
+            }
+        }
+    }
+    else
+    {
+        Console.WriteLine("Aluno não encontrado!");
+    }
+    Console.ReadLine();
+    menu();
+}
+
+void Ver_AceitarSolicitacao()
+{
+    Console.Clear();
+    Console.WriteLine("Digite o nome do Personal:");
+    string nome = Console.ReadLine()!;
+    if (Personais.ContainsKey(nome))
+    {
+        Personais personal = Personais[nome];
+        if (personal.solicitacaos is null)
+        {
+            Console.WriteLine("Não há solicitações");
+        }
+        else
+        {
+            Console.WriteLine("Solicitações de Treino:");
+            foreach (var solicitacao in personal.solicitacaos)
+            {
+                if (solicitacao.Status== "Pendente")
+                {
+                    Console.WriteLine("------------------------------------------------------------------");
+                    Console.WriteLine($"Aluno: {solicitacao.aluno.nome} - Data: {solicitacao.DataHora} - Status: {solicitacao.Status}");
+                    Console.WriteLine("------------------------------------------------------------------");
+                    Console.WriteLine("Quer Aceitar essa solicitação(y para sim e n para não):");
+                    string resposta = Console.ReadLine()!;
+                    if (resposta == "y")
+                    {
+                        solicitacao.Status = "Aceito";
+                        Console.WriteLine("Solicitação aceita com sucesso!");
+                    }
+                    else if (resposta == "n")
+                    {
+                        solicitacao.Status = "Recusado";
+                        Console.WriteLine("Solicitação recusada com sucesso!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Resposta inválida!");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("------------------------------------------------------------------");
+                    Console.WriteLine($"Aluno: {solicitacao.aluno.nome} - Data: {solicitacao.DataHora} - Status: {solicitacao.Status}");
+                    Console.WriteLine("------------------------------------------------------------------");
+                }
+            }
+        }
+    }
+    else
+    {
+        Console.WriteLine("Personal não encontrado!");
     }
     Console.ReadLine();
     menu();

@@ -14,6 +14,8 @@ internal class Alunos
 
     public Personais Personal { get; set; }
 
+    public List<Solicitacao> Solicitacao { get; set; } = new List<Solicitacao>();
+
     public Alunos(string nome, string cpf)
     {
         this.nome = nome;
