@@ -9,19 +9,18 @@ internal class Funcionarios
     public string cpf { get; set; }
     private string? numeroMatricula { get; set; }
 
-    private string senha { get; set; }
+    public string senha { get; set; }
 
     public Funcionarios(string nome, string cpf,string senha)
     {
         this.nome = nome;
         this.cpf = cpf;
+        this.senha = senha;
         this.numeroMatricula = Guid.NewGuid().ToString("N").Substring(0, 8);
     }
 
-    public bool VerificaSenha()
+    public bool VerificaSenha(string senha)
     {
-        Console.WriteLine("Digite a sua senha:");
-        string senha = Console.ReadLine()!;
         if (senha == this.senha)
         {
             Console.WriteLine("Senha correta!");
@@ -29,7 +28,6 @@ internal class Funcionarios
         }
         else
         {
-            Console.WriteLine("Senha incorreta!");
             return false;
         }
     }

@@ -8,23 +8,32 @@ namespace ProGymManager.Menus
         Funcionarios funcionarioLogado;
         public void VerificaFuncionario(Dictionary<string, Funcionarios> funcionarios)
         {
+
             Console.WriteLine("Digite o seu nome:");
             string nome = Console.ReadLine()!;
-            Console.WriteLine("Digite a sua senha:");
+            Console.WriteLine(funcionarios[nome].nome);
+            Console.WriteLine(funcionarios[nome].senha);
+            Console.WriteLine("Escreva sua Senha:");
             string senha = Console.ReadLine()!;
             if (funcionarios.ContainsKey(nome))
             {
+                Console.Clear();
                 Console.WriteLine($"Bem vindo {nome}!");
                 funcionarioLogado = funcionarios[nome];
-                bool validação=funcionarioLogado.VerificaSenha();
-                if (validação)
+                Console.WriteLine(funcionarioLogado.nome);
+                Console.WriteLine(funcionarioLogado.senha);
+                bool validação=funcionarioLogado.VerificaSenha(senha);
+                Console.WriteLine(validação);
+                if (validação==true)
                 {
                     Console.WriteLine("Logado");
+                    Console.ReadLine();
 
                 }
                 else
                 {
                     Console.WriteLine("Senha incorreta!");
+                    funcionarioLogado = null;
                     return;
                 }
             }
@@ -45,7 +54,8 @@ namespace ProGymManager.Menus
             string nome = Console.ReadLine()!;
             Console.WriteLine("Digite o CPF do aluno:");
             string cpf = Console.ReadLine()!;
-            Alunos aluno = new Alunos(nome, cpf);
+            string senha = "123";
+            Alunos aluno = new Alunos(nome, cpf, senha);
             Alunos.Add(aluno.nome, aluno);
             Console.WriteLine($"O aluno {aluno.nome} foi Cadastrado com sucesso!");
         }
@@ -58,7 +68,8 @@ namespace ProGymManager.Menus
             string nome = Console.ReadLine()!;
             Console.WriteLine("Digite o CPF do Personal:");
             string cpf = Console.ReadLine()!;
-            Personais personal = new Personais(nome, cpf);
+            string senha = "123";
+            Personais personal = new Personais(nome, cpf,senha);
             Personais.Add(personal.nome, personal);
             Console.WriteLine($"O Personal {personal.nome} foi Cadastrado com sucesso!");
         }
@@ -89,46 +100,49 @@ namespace ProGymManager.Menus
         public override void Executar(Dictionary<string, Funcionarios> funcionarios, Dictionary<string, Personais> Personais, Dictionary<string, Alunos> Alunos)
         {
             int sair = 1;
-            Console.Clear();
-            while (sair==1)
+            while (sair!=0)
             {
+                Console.WriteLine("entrou aqui");
                 if (funcionarioLogado is null)
                 {
                     VerificaFuncionario(funcionarios);
                 }
-
-                ExibirTituloDaOpcao("Menu do Funcionario:\n");
-                Console.WriteLine("Escolha uma opção: ");
-                Console.WriteLine("1 - Cadastrar Alunos");
-                Console.WriteLine("2 - Cadastrar Personal");
-                Console.WriteLine("3 - Ver Alunos");
-                Console.WriteLine("4 - Ver Personais");
-                Console.WriteLine("5 - Sair");
-
-                Console.Write("Sua opção: ");
-                int opcao = int.Parse(Console.ReadLine()!);
-                switch (opcao)
+                else
                 {
-                    case 1:
-                        CadastrarAlunos(Alunos);
-                        break;
-                    case 2:
-                        CadastrarPersonal(Personais);
-                        break;
-                    case 3:
-                        VerAlunos(Alunos);
-                        break;
-                    case 4:
-                        VerPersonais(Personais);
-                        break;
-                    case 5:
-                        sair = Sair();
-                        break;
-                    default:
-                        Console.WriteLine("Opção incorreta!");
-                        break;
-                }
+                    Console.Clear();
+                    ExibirTituloDaOpcao("Menu do Funcionario:\n");
+                    Console.WriteLine("Escolha uma opção: ");
+                    Console.WriteLine("1 - Cadastrar Alunos");
+                    Console.WriteLine("2 - Cadastrar Personal");
+                    Console.WriteLine("3 - Ver Alunos");
+                    Console.WriteLine("4 - Ver Personais");
+                    Console.WriteLine("5 - Sair");
 
+                    Console.Write("Sua opção: ");
+                    int opcao = int.Parse(Console.ReadLine()!);
+                    switch (opcao)
+                    {
+                        case 1:
+                            CadastrarAlunos(Alunos);
+                            break;
+                        case 2:
+                            CadastrarPersonal(Personais);
+                            break;
+                        case 3:
+                            VerAlunos(Alunos);
+                            break;
+                        case 4:
+                            VerPersonais(Personais);
+                            break;
+                        case 5:
+                            sair =Sair();
+                            funcionarioLogado = null;
+                            break;
+                        default:
+                            Console.WriteLine("Opção incorreta!");
+                            break;
+                    }
+                }
             }
            
 

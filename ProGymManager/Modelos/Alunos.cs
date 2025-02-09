@@ -9,6 +9,7 @@ internal class Alunos
     private string numeroMatricula { get; set; }
     public int plano { get; set; }
     public bool ativo { get; set; }
+    public string senha { get; set; }
 
     public List<Treino> Treinos { get; set; } = new List<Treino>();
 
@@ -16,14 +17,30 @@ internal class Alunos
 
     public List<Solicitacao> Solicitacao { get; set; } = new List<Solicitacao>();
 
-    public Alunos(string nome, string cpf)
+    public Alunos(string nome, string cpf,string senha)
     {
         this.nome = nome;
         this.cpf = cpf;
+        this.senha = senha;
         numeroMatricula = Guid.NewGuid().ToString("N").Substring(0, 8);
         ativo = true;
         plano = 1;
     }
+
+    public bool VerificaSenha(string senha)
+    {
+        if (senha == this.senha)
+        {
+            Console.WriteLine("Senha correta!");
+            return true;
+        }
+        else
+        {
+            Console.WriteLine("Senha incorreta!");
+            return false;
+        }
+    }
+
 
     public void MostrarFicha()
     {
