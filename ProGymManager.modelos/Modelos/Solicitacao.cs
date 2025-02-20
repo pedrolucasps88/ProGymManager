@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace ProGymManager.Modelos;
 
-internal class Solicitacao
+public class Solicitacao
 {
+    public int Id { get; set; }
     public Personais personal { get; set; }
     public Alunos aluno { get; set; }
 
@@ -17,6 +18,10 @@ internal class Solicitacao
 
     public string Status { get; set; } = "Pendente";
 
+    public Solicitacao()
+    {
+        
+    }
     public Solicitacao(Personais personal,Alunos aluno, DateTime DataHora, Treino treino)
     {
         this.personal = personal;

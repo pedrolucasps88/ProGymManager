@@ -3,19 +3,25 @@ using System.Security;
 
 namespace ProGymManager.Modelos;
 
-internal class Funcionarios
+public class Funcionarios
 {
+    public int Id { get; set; }
     public string nome { get; set; }
     public string cpf { get; set; }
-    private string? numeroMatricula { get; set; }
+    public string email { get; set; }
+    public string? numeroMatricula {get; set; }
 
     public string senha { get; set; }
-
+    public Funcionarios()
+    {
+        
+    }
     public Funcionarios(string nome, string cpf,string senha)
     {
         this.nome = nome;
         this.cpf = cpf;
         this.senha = senha;
+        this.email = email ??nome.ToLower().Replace(" ", "") + "@gmail.com";
         this.numeroMatricula = Guid.NewGuid().ToString("N").Substring(0, 8);
     }
 
@@ -38,7 +44,12 @@ internal class Funcionarios
         Console.WriteLine($"Ficha do Funcionario:{nome}");
         Console.WriteLine($"Meu cpf:{cpf}");
         Console.WriteLine($"Matricula:{numeroMatricula}");
+        Console.WriteLine($"Email:{email}");
         Console.WriteLine("------------------------------------");
 
+    }
+    public string GetNumeroMatricula()
+    {
+        return this.numeroMatricula;
     }
 }

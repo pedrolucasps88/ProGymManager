@@ -59,9 +59,4 @@ internal class Menu
     public virtual void Executar(Dictionary<string, Funcionarios> funcionarios, Dictionary<string, Personais> Personais, Dictionary<string, Alunos> Alunos)
     {
     }
-    public virtual void Executar(Dictionary<string, Funcionarios> funcionarios, Dictionary<string, Personais> Personais, Dictionary<string, Alunos> Alunos
-        ,Funcionarios funcionarioLogado)
-    {
-    }
-
 }

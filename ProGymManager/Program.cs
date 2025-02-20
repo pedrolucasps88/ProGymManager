@@ -1,8 +1,10 @@
 ﻿
 using ProGymManager.Menus;
 using ProGymManager.Modelos;
+using ProGymManager.Dados;
 using System.ComponentModel.Design;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 
 Menu menu = new Menu();
@@ -46,3 +48,11 @@ Console.WriteLine("Programa encerrado. tchau tchau!");
 //falta alguns detalhes
 //dar uma limpada nos códigos
 //e depois fazer o teste de unidade
+
+//var optionsBuilder = new DbContextOptionsBuilder<ProGymManagerContext>();
+//optionsBuilder.UseSqlServer("Server=localhost;User Id=root;Password=1234;Database=ProGymManagerDB");
+
+//using (var context = new ProGymManagerContext(optionsBuilder.Options))
+//{
+//    context.Database.Migrate(); // Esse comando aplica qualquer migração pendente
+//}

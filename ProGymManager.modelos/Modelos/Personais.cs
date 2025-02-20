@@ -2,11 +2,13 @@
 
 namespace ProGymManager.Modelos;
 
-internal class Personais
+public class Personais
 {
+    public int Id { get; set; }
     public string nome { get; set; }
     public string cpf { get; set; }
-    private string? numeroMatricula { get; set; }
+    public string email { get; set; }
+    public string? numeroMatricula { get; set; }
     public string senha { get; set; }
 
     public bool disponivel => Alunos is null || Alunos.Count != 8;
@@ -14,11 +16,17 @@ internal class Personais
 
     public List<Solicitacao> solicitacaos { get; set; } = new List<Solicitacao>();
 
+    public Personais()
+    {
+        
+    }
     public Personais(string nome, string cpf, string senha)
     {
+
         this.nome = nome;
         this.cpf = cpf;
         this.senha = senha;
+        this.email = email ?? nome.ToLower().Replace(" ", "") + "@gmail.com";
         this.numeroMatricula = Guid.NewGuid().ToString("N").Substring(0, 8);
     }
 
@@ -41,6 +49,7 @@ internal class Personais
         Console.WriteLine("------------------------------------");
         Console.WriteLine($"Ficha do Aluno:{nome}");
         Console.WriteLine($"Matricula:{numeroMatricula}");
+        Console.WriteLine($"Email:{email}");
         Console.WriteLine(disponivel == true ? "Tem vagas" : "Cheio de Alunos");
         int num = 1;
         if (Alunos.Count!=0)
@@ -58,6 +67,11 @@ internal class Personais
             Console.WriteLine("Não Possui alunos ainda!");
         }
         
+    }
+
+    public string GetNumeroMatricula()
+    {
+        return this.numeroMatricula;
     }
 
 }

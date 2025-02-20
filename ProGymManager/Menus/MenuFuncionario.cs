@@ -11,8 +11,6 @@ namespace ProGymManager.Menus
 
             Console.WriteLine("Digite o seu nome:");
             string nome = Console.ReadLine()!;
-            Console.WriteLine(funcionarios[nome].nome);
-            Console.WriteLine(funcionarios[nome].senha);
             Console.WriteLine("Escreva sua Senha:");
             string senha = Console.ReadLine()!;
             if (funcionarios.ContainsKey(nome))
@@ -20,10 +18,7 @@ namespace ProGymManager.Menus
                 Console.Clear();
                 Console.WriteLine($"Bem vindo {nome}!");
                 funcionarioLogado = funcionarios[nome];
-                Console.WriteLine(funcionarioLogado.nome);
-                Console.WriteLine(funcionarioLogado.senha);
                 bool validação=funcionarioLogado.VerificaSenha(senha);
-                Console.WriteLine(validação);
                 if (validação==true)
                 {
                     Console.WriteLine("Logado");
