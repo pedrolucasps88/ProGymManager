@@ -1,4 +1,5 @@
-﻿using ProGymManager.Modelos;
+﻿using ProGymManager.Dados;
+using ProGymManager.Modelos;
 using System.Collections.Generic;
 
 namespace ProGymManager.Menus;
@@ -56,7 +57,7 @@ internal class Menu
 
 
 
-    public virtual void Executar(Dictionary<string, Funcionarios> funcionarios, Dictionary<string, Personais> Personais, Dictionary<string, Alunos> Alunos)
+    public virtual void Executar(DAL<Funcionarios> funcionarios, DAL<Personais> personais, DAL<Alunos> alunos,DAL<Solicitacao> solicitacoes,DAL<Treino> treino,DAL<Exercicios>exercicios)
     {
     }
 }

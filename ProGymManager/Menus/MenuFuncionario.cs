@@ -1,47 +1,38 @@
 ﻿using ProGymManager.Modelos;
 using System.Security;
+using ProGymManager.Dados;
 
 namespace ProGymManager.Menus
 {
     internal class MenuFuncionario:Menu
     {
         Funcionarios funcionarioLogado;
-        public void VerificaFuncionario(Dictionary<string, Funcionarios> funcionarios)
+        public void VerificaFuncionario(DAL<Funcionarios> funcionarios)
         {
 
             Console.WriteLine("Digite o seu nome:");
             string nome = Console.ReadLine()!;
             Console.WriteLine("Escreva sua Senha:");
             string senha = Console.ReadLine()!;
-            if (funcionarios.ContainsKey(nome))
+            funcionarioLogado=funcionarios.RecuperarPor(f => f.nome.ToUpper().Equals(nome.ToUpper()) && f.senha.Equals(senha));
+            if (funcionarioLogado is not null)
             {
                 Console.Clear();
-                Console.WriteLine($"Bem vindo {nome}!");
-                funcionarioLogado = funcionarios[nome];
-                bool validação=funcionarioLogado.VerificaSenha(senha);
-                if (validação==true)
-                {
-                    Console.WriteLine("Logado");
-                    Console.ReadLine();
+                Console.WriteLine($"Bem vindo {funcionarioLogado.nome}!");
+                Console.WriteLine("Logado");
+                Console.ReadLine();
 
-                }
-                else
-                {
-                    Console.WriteLine("Senha incorreta!");
-                    funcionarioLogado = null;
-                    return;
-                }
             }
             else
             {
-                Console.WriteLine("Nome não encontrado!");
+                Console.WriteLine("Usuario e Senha não encontrados!");
             }
         }
 
 
 
 
-        void CadastrarAlunos(Dictionary<string, Alunos> Alunos)
+        void CadastrarAlunos(DAL<Alunos> alunos)
         {
             Console.Clear();
             Console.WriteLine("Cadastro de Alunos");
@@ -51,11 +42,12 @@ namespace ProGymManager.Menus
             string cpf = Console.ReadLine()!;
             string senha = "123";
             Alunos aluno = new Alunos(nome, cpf, senha);
-            Alunos.Add(aluno.nome, aluno);
+            alunos.Adicionar(aluno);
             Console.WriteLine($"O aluno {aluno.nome} foi Cadastrado com sucesso!");
+            Console.ReadLine();
         }
 
-        void CadastrarPersonal(Dictionary<string, Personais> Personais)
+        void CadastrarPersonal(DAL<Personais> personais)
         {
             Console.Clear();
             Console.WriteLine("Cadastro de Personal");
@@ -65,34 +57,37 @@ namespace ProGymManager.Menus
             string cpf = Console.ReadLine()!;
             string senha = "123";
             Personais personal = new Personais(nome, cpf,senha);
-            Personais.Add(personal.nome, personal);
+            personais.Adicionar(personal);
             Console.WriteLine($"O Personal {personal.nome} foi Cadastrado com sucesso!");
+            Console.ReadLine();
         }
 
-        void VerAlunos(Dictionary<string, Alunos> Alunos)
+        void VerAlunos(DAL<Alunos> alunos)
         {
 
             Console.Clear();
             Console.WriteLine("Alunos:");
-            foreach (var alunos in Alunos)
+            var listaDeAlunos= alunos.listar();
+            foreach (var aluno in listaDeAlunos)
             {
-                alunos.Value.MostrarFicha();
+                aluno.MostrarFicha();
             }
             Console.ReadLine();
         }
 
-        void VerPersonais(Dictionary<string, Personais> Personais)
+        void VerPersonais(DAL<Personais> personais)
         {
             Console.Clear();
             Console.WriteLine("Personais:");
-            foreach (var personal in Personais)
+            var listaDePersonais = personais.listar();
+            foreach (var personal in listaDePersonais)
             {
-                personal.Value.MostrarFicha();
+                personal.MostrarFicha();
             }
             Console.ReadLine();
         }
 
-        public override void Executar(Dictionary<string, Funcionarios> funcionarios, Dictionary<string, Personais> Personais, Dictionary<string, Alunos> Alunos)
+        public override void Executar(DAL<Funcionarios> funcionarios, DAL<Personais> personais, DAL<Alunos> alunos, DAL<Solicitacao> solicitacoes, DAL<Treino> treino, DAL<Exercicios> exercicios)
         {
             int sair = 1;
             while (sair!=0)
@@ -118,16 +113,16 @@ namespace ProGymManager.Menus
                     switch (opcao)
                     {
                         case 1:
-                            CadastrarAlunos(Alunos);
+                            CadastrarAlunos(alunos);
                             break;
                         case 2:
-                            CadastrarPersonal(Personais);
+                            CadastrarPersonal(personais);
                             break;
                         case 3:
-                            VerAlunos(Alunos);
+                            VerAlunos(alunos);
                             break;
                         case 4:
-                            VerPersonais(Personais);
+                            VerPersonais(personais);
                             break;
                         case 5:
                             sair =Sair();

@@ -1,4 +1,6 @@
-﻿using ProGymManager.Modelos;
+﻿using ProGymManager.Dados;
+using ProGymManager.Modelos;
+using ProGymManager.Modelos.Modelos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,33 +13,24 @@ internal class MenuPersonal:Menu
 {
     Personais personalLogado;
 
-    public void VerificaPersonal(Dictionary<string, Personais> personais)
+    public void VerificaPersonal(DAL<Personais> personais)
     {
         Console.WriteLine("Digite o seu nome:");
         string nome = Console.ReadLine()!;
-        Console.WriteLine("Digite sua Senha: ");
+        Console.WriteLine("Escreva sua Senha:");
         string senha = Console.ReadLine()!;
-        if (personais.ContainsKey(nome))
+        personalLogado = personais.RecuperarPor(f => f.nome.ToUpper().Equals(nome.ToUpper()) && f.senha.Equals(senha));
+        if (personalLogado is not null)
         {
             Console.Clear();
-            Console.WriteLine($"Bem vindo {nome}!");
-            personalLogado = personais[nome];
-            bool validação = personalLogado.VerificaSenha(senha);
-            if (validação)
-            {
-                Console.WriteLine("Logado");
-                Console.ReadLine(); 
-            }
-            else
-            {
-                Console.WriteLine("Senha incorreta!");
-                personalLogado = null;
-                return;
-            }
+            Console.WriteLine($"Bem vindo {personalLogado.nome}!");
+            Console.WriteLine("Logado");
+            Console.ReadLine();
+
         }
         else
         {
-            Console.WriteLine("Nome não encontrado!");
+            Console.WriteLine("Usuario e Senha não encontrados!");
         }
     }
 
@@ -80,26 +73,34 @@ internal class MenuPersonal:Menu
         }
     }
 
-    void CriarTreino(Dictionary<string, Alunos> Alunos)
+    void CriarTreino(DAL<Alunos> alunos,DAL<Exercicios> exercicios,DAL<Treino> treino)
     {
         Console.Clear();
         Console.WriteLine("Digite o nome do aluno:");
         string nome = Console.ReadLine()!;
         int sairT = 0;
-
-        if (Alunos.ContainsKey(nome))
+        var alunoEscolhido = alunos.RecuperarPor(a=>a.nome.ToUpper().Equals(nome.ToUpper()));
+        
+        if (alunoEscolhido is not null)
         {
             Console.WriteLine("Digite o Nome do treino do aluno:");
             string nomeTreino = Console.ReadLine()!;
-            List<Exercicios> treino = new List<Exercicios>();
+            List<Exercicios> exerciciosTreino = new List<Exercicios>();
             while (sairT == 0)
             {
+                var listaDeExercicios = exercicios.listar();
                 Console.WriteLine("Digite o Exercicio do treino do aluno:");
                 string exercicio = Console.ReadLine()!;
                 Console.WriteLine("Digite o Musculo do exercicio:");
                 string musculo = Console.ReadLine()!;
                 Exercicios ex = new Exercicios(exercicio, musculo);
-                treino.Add(ex);
+                if (!listaDeExercicios.Any(e => e.Nome.Equals(exercicio, StringComparison.OrdinalIgnoreCase)))
+                {
+                    exercicios.Adicionar(ex);
+                }
+
+                exerciciosTreino.Add(ex);
+
                 Console.WriteLine("Deseja adicionar mais exercicios? 1-Sim 2-Não");
                 int sair = int.Parse(Console.ReadLine()!);
                 if (sair == 2)
@@ -107,9 +108,19 @@ internal class MenuPersonal:Menu
                     sairT = 1;
                 }
             }
-            Alunos aluno = Alunos[nome];
-            Treino treinoAluno = new Treino(nomeTreino, treino, aluno);
-            aluno.Treinos.Add(treinoAluno);
+
+            Treino treinoAluno = new Treino
+            {
+                Nome = nomeTreino,
+                AlunoId = alunoEscolhido.Id,
+                TreinoExercicios = exerciciosTreino.Select(e => new TreinoExercicio
+                {
+                    ExercicioId = e.Id
+                }).ToList()
+            };
+
+            treino.Adicionar(treinoAluno);
+            alunoEscolhido.treinos.Add(treinoAluno);
             Console.WriteLine("Treino cadastrado com sucesso!");
         }
         else
@@ -120,19 +131,19 @@ internal class MenuPersonal:Menu
     }
 
 
-    void Ver_AceitarSolicitacao(Personais personalLogado)
+    void Ver_AceitarSolicitacao(DAL<Solicitacao> solicitacoes)
     {
         Console.Clear();
-       
-            
-            if (personalLogado.solicitacaos is null)
+
+        var solicitacoesDoPersonal = solicitacoes.listar().Where(s => s.personal.Id.Equals(personalLogado.Id));
+            if (solicitacoesDoPersonal is null)
             {
                 Console.WriteLine("Não há solicitações");
             }
             else
             {
                 Console.WriteLine("Solicitações de Treino:");
-                foreach (var solicitacao in personalLogado.solicitacaos)
+                foreach (var solicitacao in solicitacoesDoPersonal)
                 {
                     if (solicitacao.Status == "Pendente")
                     {
@@ -167,7 +178,7 @@ internal class MenuPersonal:Menu
         Console.ReadLine();
     }
 
-    public override void Executar(Dictionary<string, Funcionarios> funcionarios, Dictionary<string, Personais> Personais, Dictionary<string, Alunos> Alunos)
+    public override void Executar(DAL<Funcionarios> funcionarios, DAL<Personais> personais, DAL<Alunos> alunos, DAL<Solicitacao> solicitacoes, DAL<Treino> treino, DAL<Exercicios> exercicios)
     {
         int sair = 1;
         
@@ -175,7 +186,7 @@ internal class MenuPersonal:Menu
         {
             if (personalLogado is null)
             {
-                VerificaPersonal(Personais);
+                VerificaPersonal(personais);
             }
             else
             {
@@ -194,10 +205,10 @@ internal class MenuPersonal:Menu
                         VerExerciciosPorMusculo();
                         break;
                     case 2:
-                        CriarTreino(Alunos);
+                        CriarTreino(alunos,exercicios,treino);
                         break;
                     case 3:
-                        Ver_AceitarSolicitacao(personalLogado);
+                        Ver_AceitarSolicitacao(solicitacoes);
                         break;
                     case 4:
                         sair = Sair();

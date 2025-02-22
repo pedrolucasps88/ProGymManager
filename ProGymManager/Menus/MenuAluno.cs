@@ -1,4 +1,5 @@
-﻿using ProGymManager.Modelos;
+﻿using ProGymManager.Dados;
+using ProGymManager.Modelos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,98 +11,93 @@ namespace ProGymManager.Menus
     internal class MenuAluno : Menu
     {
         Alunos alunoLogado;
-        public void VerificaAluno(Dictionary<string, Alunos> alunos)
+        public void VerificaAluno(DAL<Alunos> alunos)
         {
             Console.WriteLine("Digite o seu nome:");
             string nome = Console.ReadLine()!;
-            Console.WriteLine("Digite sua Senha: ");
+            Console.WriteLine("Escreva sua Senha:");
             string senha = Console.ReadLine()!;
-            if (alunos.ContainsKey(nome))
+            alunoLogado = alunos.RecuperarPor(f => f.nome.ToUpper().Equals(nome.ToUpper()) && f.senha.Equals(senha));
+            if (alunoLogado is not null)
             {
                 Console.Clear();
-                Console.WriteLine($"Bem vindo {nome}!");
-                alunoLogado = alunos[nome];
-                bool validação = alunoLogado.VerificaSenha(senha);
-                if (validação)
-                {
-                    Console.WriteLine("Logado");
-                    Console.ReadLine();
-                }
-                else
-                {
-                    Console.WriteLine("Senha incorreta!");
-                    alunoLogado = null;
-                    return;
-                }
+                Console.WriteLine($"Bem vindo {alunoLogado.nome}!");
+                Console.WriteLine("Logado");
+                Console.ReadLine();
+
             }
             else
             {
-                Console.WriteLine("Nome não encontrado!");
+                Console.WriteLine("Usuario e Senha não encontrados!");
             }
         }
 
-        void VerTreinosPorAluno(Alunos alunologado)
+        void VerTreinosPorAluno(DAL<Treino>treino)
         {
             Console.Clear();
-
-            foreach (var treino in alunoLogado.Treinos)
+            var listaDeTreinos = treino.listar().Where(t => t.Aluno.Id.Equals(alunoLogado.Id));
+            if (listaDeTreinos.Count() == 0)
             {
-                Console.WriteLine($"Treino: {treino.Nome}");
+                Console.WriteLine("Não há treinos cadastrados");
+                Console.ReadLine();
+                return;
+            }
+
+            foreach (var treinos in listaDeTreinos)
+            {
+                Console.WriteLine($"Treino: {treinos.Nome}");
                 Console.WriteLine("\n");
-                foreach (var exercicio in treino.Exercicios)
+                foreach (var exercicio in treinos.TreinoExercicios)
                 {
                     Console.WriteLine("---------------------------------------");
-                    Console.WriteLine($"Exercicio: {exercicio.Nome} -- {exercicio.Musculo}");
+                    Console.WriteLine($"Exercicio: {exercicio.Exercicio.Nome} -- {exercicio.Exercicio.Musculo}");
                     Console.WriteLine("---------------------------------------");
                 }
             }
             Console.ReadLine();
         }
 
-        void ContratarPersonal(Alunos alunoLogado, Dictionary<string, Personais> Personais)
+        void ContratarPersonal(DAL<Personais> personais,DAL<Alunos> alunos)
         {
             Console.Clear();
-            List<Personais> personaisDisponiveis = new List<Personais>();
+            var listaDePersonaisDisponiveis = personais.listar().Where(p => p.disponivel);
 
             Console.WriteLine("Personais Disponiveis:");
-            foreach (var personal in Personais)
+            foreach (var personal in listaDePersonaisDisponiveis)
             {
-                if (personal.Value.disponivel) personaisDisponiveis.Add(personal.Value);
-            }
-            foreach (var personais in personaisDisponiveis)
-            {
-                personais.MostrarFicha();
+                personal.MostrarFicha();
             }
             Console.WriteLine("Digite o nome do Personal que quer contratar:");
             string nomePersonal = Console.ReadLine()!;
-            if (Personais.ContainsKey(nomePersonal))
+            var personalEscolhido = personais.RecuperarPor(p => p.nome.ToUpper().Equals(nomePersonal.ToUpper()));
+            if (listaDePersonaisDisponiveis.Any(p=>p.Equals(personalEscolhido)))
             {
-
-                Personais personal = Personais[nomePersonal];
-                alunoLogado.Personal = personal;
-                personal.Alunos.Add(alunoLogado);
+                alunoLogado.personal = personalEscolhido;
+                alunoLogado.personalId = personalEscolhido.Id;
+                alunos.Atualizar(alunoLogado);
                 Console.WriteLine("Personal contratado com sucesso!");
             }
             else
             {
-                Console.WriteLine("Personal não encontrado!");
+                Console.WriteLine("Personal não encontrado ou não disponivel!");
             }
 
             Console.ReadLine();
         }
 
-        void MarcarTreinoComPersonal(Alunos alunoLogado)
+        void MarcarTreinoComPersonal(DAL<Solicitacao>solicitacao,DAL<Treino>treino)
         {
             Console.Clear();
 
-            if (alunoLogado.Personal is null)
+            if (alunoLogado.personal is null)
             {
                 Console.WriteLine("Aluno não tem personal ainda!");
                 Console.WriteLine("Contrate um no menu de Aluno!");
             }
             else
             {
-                Personais personal = alunoLogado.Personal;
+                var listaDeTreinos = treino.listar().Where(t => t.Aluno.Id.Equals(alunoLogado.Id));
+                Personais personal = alunoLogado.personal;
                 Console.WriteLine("Qual treino quer fazer: ");
                 string nomeTreino = Console.ReadLine()!;
                 Console.Write("Digite o dia e horário que quer treinar (formato: yyyy-MM-dd HH:mm): ");
@@ -111,33 +107,53 @@ namespace ProGymManager.Menus
                     Console.WriteLine("Data e hora inválida");
                     Console.ReadLine();
                 }
-                if (alunoLogado.Treinos.Any(t => t.Nome.Equals(nomeTreino)))
+                if (listaDeTreinos.Any(t=>t.Nome.ToUpper().Equals(nomeTreino.ToUpper())))
                 {
-                    Treino treino = alunoLogado.Treinos.First(t => t.Nome.Equals(nomeTreino));
+                    
+                    Treino treinoescolhido = treino.RecuperarPor(t => t.Nome.ToUpper().Equals(nomeTreino.ToUpper()));
                     Console.WriteLine("Treino Encontrado");
-                    Solicitacao solicitacao1 = new Solicitacao(personal, alunoLogado, dataHora, treino);
-                    alunoLogado.Solicitacao.Add(solicitacao1);
+                    Solicitacao solicitacao1 = new Solicitacao(personal, alunoLogado, dataHora, treinoescolhido);
+                    alunoLogado.solicitacoes.Add(solicitacao1);
                     personal.solicitacaos.Add(solicitacao1);
+                    solicitacao.Adicionar(solicitacao1);
                     Console.WriteLine($"Solicitação de Treino de {nomeTreino} marcado com {personal.nome} no dia {dataHora}");
                     Console.ReadLine();
                 }
                 else
                 {
-                    List<Exercicios> exercicios = new List<Exercicios>();
-                    Treino treinoPersonalizado = new Treino("Personalizado",exercicios, alunoLogado);
-                    Solicitacao solicitacao1 = new Solicitacao(personal, alunoLogado, dataHora,treinoPersonalizado);
-                    alunoLogado.Solicitacao.Add(solicitacao1);
-                    personal.solicitacaos.Add(solicitacao1);
-                    Console.WriteLine($"Solicitação de Treino {nomeTreino} marcado com {personal.nome} no dia {dataHora}");
-                    Console.ReadLine();
+                
+                    var listaDeTodosTreinos=treino.listar();
+                    if (listaDeTodosTreinos.Any(t => t.Nome.Equals("Personalizado")))
+                    {
+                        Treino personalizado = treino.RecuperarPor(t => t.Nome.Equals("Personalizado"));
+                        Solicitacao solicitacao1 = new Solicitacao(personal, alunoLogado, dataHora, personalizado);
+                        alunoLogado.solicitacoes.Add(solicitacao1);
+                        personal.solicitacaos.Add(solicitacao1);
+                        Console.WriteLine($"Solicitação de Treino {nomeTreino} marcado com {personal.nome} no dia {dataHora}");
+                        Console.ReadLine();
+                    }
+                    else
+                    {
+                        List<Exercicios> exercicios = new List<Exercicios>();
+                        Treino treinoPersonalizado = new Treino("Personalizado", alunoLogado.Id,exercicios );
+                        treino.Adicionar(treinoPersonalizado);
+                        Solicitacao solicitacao1 = new Solicitacao(personal, alunoLogado, dataHora, treinoPersonalizado);
+                        alunoLogado.solicitacoes.Add(solicitacao1);
+                        personal.solicitacaos.Add(solicitacao1);
+                        Console.WriteLine($"Solicitação de Treino {nomeTreino} marcado com {personal.nome} no dia {dataHora}");
+                        Console.ReadLine();
+                    }
+                    
+                    
                 }
                 
             }
         }
-        void AlunoVerSolicitaçõesDeTreino(Alunos alunoLogado)
+        void AlunoVerSolicitaçõesDeTreino(DAL<Solicitacao>solicitacoes)
         {
             Console.Clear();
-            if (alunoLogado.Solicitacao is null)
+            var solicitacoesDoAluno = solicitacoes.listar().Where(s => s.aluno.Id.Equals(alunoLogado.Id));
+            if (solicitacoesDoAluno is null)
             {
                 Console.WriteLine("Não há solicitações");
                 Console.ReadLine();
@@ -145,7 +161,7 @@ namespace ProGymManager.Menus
             else
             {
                 Console.WriteLine("Solicitações de Treino:");
-                foreach (var solicitacao in alunoLogado.Solicitacao)
+                foreach (var solicitacao in solicitacoesDoAluno)
                 {
                     Console.WriteLine($"Personal: {solicitacao.personal.nome} - Data: {solicitacao.DataHora} - Status: {solicitacao.Status}");
                 }
@@ -156,14 +172,14 @@ namespace ProGymManager.Menus
 
 
 
-        public override void Executar(Dictionary<string, Funcionarios> funcionarios, Dictionary<string, Personais> Personais, Dictionary<string, Alunos> Alunos)
+        public override void Executar(DAL<Funcionarios> funcionarios, DAL<Personais> personais, DAL<Alunos> alunos, DAL<Solicitacao> solicitacoes, DAL<Treino> treino, DAL<Exercicios> exercicios)
         {
             int sair = 1;
             while (sair == 1)
             {
                 if (alunoLogado is null)
                 {
-                    VerificaAluno(Alunos);
+                    VerificaAluno(alunos);
                 }
                 else
                 {
@@ -180,16 +196,16 @@ namespace ProGymManager.Menus
                     switch (opcao)
                     {
                         case 1:
-                            VerTreinosPorAluno(alunoLogado);
+                            VerTreinosPorAluno(treino);
                             break;
                         case 2:
-                            ContratarPersonal(alunoLogado, Personais);
+                            ContratarPersonal(personais,alunos);
                             break;
                         case 3:
-                            MarcarTreinoComPersonal(alunoLogado);
+                            MarcarTreinoComPersonal(solicitacoes,treino);
                             break;
                         case 4:
-                            AlunoVerSolicitaçõesDeTreino(alunoLogado);
+                            AlunoVerSolicitaçõesDeTreino(solicitacoes);
                             break;
                         case 5:
                             sair = Sair();
