@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProGymManager.Modelos.Modelos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace ProGymManager.Modelos
         public string Nome { get; set; }
         public string Musculo { get; set; }
 
+        public ICollection<TreinoExercicio> TreinoExercicios { get; set; } = new List<TreinoExercicio>();
         public Exercicios()
         {
             

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Globalization;
+using System.Numerics;
 
 namespace ProGymManager.Modelos;
 
@@ -8,7 +9,7 @@ public class Personais
     public string nome { get; set; }
     public string cpf { get; set; }
     public string email { get; set; }
-    public string? numeroMatricula { get; set; }
+    public string? numeroMatricula { get;private set; }
     public string senha { get; set; }
 
     public bool disponivel => Alunos is null || Alunos.Count != 8;
@@ -18,16 +19,21 @@ public class Personais
 
     public Personais()
     {
-        
+        this.numeroMatricula = GerarNumeroMatricula();
     }
-    public Personais(string nome, string cpf, string senha)
+    public Personais(string nome, string cpf, string senha, string email=null)
     {
 
         this.nome = nome;
         this.cpf = cpf;
         this.senha = senha;
         this.email = email ?? nome.ToLower().Replace(" ", "") + "@gmail.com";
-        this.numeroMatricula = Guid.NewGuid().ToString("N").Substring(0, 8);
+        this.numeroMatricula = GerarNumeroMatricula();
+    }
+
+    private string GerarNumeroMatricula()
+    {
+        return Guid.NewGuid().ToString("N").Substring(0, 8);
     }
 
     public bool VerificaSenha(string senha)
