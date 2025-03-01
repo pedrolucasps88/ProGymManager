@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProGymManager.API.Requests;
 using ProGymManager.Dados;
 using ProGymManager.Modelos;
 
@@ -23,8 +24,9 @@ namespace ProGymManager.API.EndPoints
                 return Results.Ok(alunos);
             });
 
-            app.MapPost("/alunos", ([FromServices] DAL<Alunos> dal, [FromBody] Alunos aluno) =>
+            app.MapPost("/alunos", ([FromServices] DAL<Alunos> dal, [FromBody] AlunosRequests alunoRequest) =>
             {
+                var aluno = new Alunos(alunoRequest.nome, alunoRequest.cpf, alunoRequest.senha, alunoRequest.email);
                 dal.Adicionar(aluno);
                 return Results.Ok();
             });
@@ -47,7 +49,14 @@ namespace ProGymManager.API.EndPoints
                 {
                     return Results.NotFound();
                 }
-                dal.Atualizar(aluno);
+                alunoEscolhido.nome = aluno.nome;
+                alunoEscolhido.email = aluno.email; 
+                alunoEscolhido.plano = aluno.plano;
+                alunoEscolhido.senha = aluno.senha;
+                alunoEscolhido.cpf = aluno.cpf;
+                alunoEscolhido.ativo = aluno.ativo;
+                alunoEscolhido.personalId = aluno.personalId;
+                dal.Atualizar(alunoEscolhido);
                 return Results.Ok();
             });
         }

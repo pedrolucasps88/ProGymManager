@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProGymManager.API.Requests;
 using ProGymManager.Dados;
 using ProGymManager.Modelos;
 
@@ -23,9 +24,10 @@ namespace ProGymManager.API.EndPoints
                 return Results.Ok(personais);
             });
 
-            app.MapPost("/personais", ([FromServices] DAL<Personais> dal, [FromBody] Personais pessoal) =>
+            app.MapPost("/personais", ([FromServices] DAL<Personais> dal, [FromBody] PersonaisRequests personalRequest) =>
             {
-                dal.Adicionar(pessoal);
+                var personal = new Personais(personalRequest.nome, personalRequest.cpf, personalRequest.senha, personalRequest.email);
+                dal.Adicionar(personal);
                 return Results.Ok();
             });
 
@@ -40,14 +42,18 @@ namespace ProGymManager.API.EndPoints
                 return Results.Ok();
             });
 
-            app.MapPut("/personais", ([FromServices] DAL<Personais> dal, [FromBody] Personais pessoal) =>
+            app.MapPut("/personais", ([FromServices] DAL<Personais> dal, [FromBody] Personais personal) =>
             {
-                var pessoalEscolhido = dal.RecuperarPor(f => f.Id.Equals(pessoal.Id));
-                if (pessoalEscolhido is null)
+                var personalEscolhido = dal.RecuperarPor(p => p.Id.Equals(personal.Id));
+                if (personalEscolhido is null)
                 {
                     return Results.NotFound();
                 }
-                dal.Atualizar(pessoal);
+                personalEscolhido.nome = personal.nome;
+                personalEscolhido.cpf = personal.cpf;
+                personalEscolhido.senha = personal.senha;
+                personalEscolhido.email = personal.email;
+                dal.Atualizar(personalEscolhido);
                 return Results.Ok();
             });
         }

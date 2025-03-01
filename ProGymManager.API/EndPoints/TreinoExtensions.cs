@@ -47,7 +47,9 @@ namespace ProGymManager.API.EndPoints
                 {
                     return Results.NotFound();
                 }
-                dal.Atualizar(treino);
+                treinoEscolhido.Nome = treino.Nome;
+                treinoEscolhido.AlunoId = treino.AlunoId;
+                dal.Atualizar(treinoEscolhido);
                 return Results.Ok();
             });
 

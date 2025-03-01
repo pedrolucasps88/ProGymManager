@@ -155,12 +155,14 @@ internal class MenuPersonal:Menu
                         if (resposta == "y")
                         {
                             solicitacao.Status = "Aceito";
-                            Console.WriteLine("Solicitação aceita com sucesso!");
+                            solicitacoes.Atualizar(solicitacao);
+                        Console.WriteLine("Solicitação aceita com sucesso!");
                         }
                         else if (resposta == "n")
                         {
                             solicitacao.Status = "Recusado";
-                            Console.WriteLine("Solicitação recusada com sucesso!");
+                            solicitacoes.Atualizar(solicitacao);
+                        Console.WriteLine("Solicitação recusada com sucesso!");
                         }
                         else
                         {
