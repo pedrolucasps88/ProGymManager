@@ -30,8 +30,6 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-builder.Services.AddSwaggerGen();
 var app = builder.Build();
 app.AddEndPointsFuncionarios();
 app.AddEndPointsPersonais();
@@ -67,4 +65,15 @@ app.AddEndPointTreinoExercicio();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.Run();
+var port = Environment.GetEnvironmentVariable("PORT") ?? "7227"; // Porta para produção
+
+if (!app.Environment.IsDevelopment())
+{
+    // Em produção, use http://0.0.0.0:{port}
+    app.Run($"http://0.0.0.0:{port}");
+}
+else
+{
+    // Em desenvolvimento, use as configurações padrão do Kestrel
+    app.Run();
+}
